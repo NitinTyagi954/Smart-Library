@@ -19,6 +19,14 @@ jobs:
         with:
           submodules: true
           lfs: false
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'Frontend/package-lock.json'
+      
       - name: Build App
         run: |
           cd Frontend
@@ -27,6 +35,11 @@ jobs:
         env:
           NEXT_PUBLIC_API_URL: "https://smartlibrary-backend-gtgnhmescehehuhj.eastasia-01.azurewebsites.net"
           NEXT_PUBLIC_RAZORPAY_KEY_ID: "rzp_test_Ri7s5aA9Wopztc"
+      
+      - name: Verify build output
+        run: |
+          ls -la Frontend/out/
+          echo "Build files ready for deployment"
       
       - name: Deploy to Azure Static Web Apps
         id: builddeploy
