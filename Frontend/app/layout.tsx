@@ -24,6 +24,8 @@ export default function RootLayout({
       <head>
         {/* Add Razorpay SDK */}
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        {/* Explicit favicon to avoid the browser implicitly requesting /favicon.ico */}
+        <link rel="icon" href="/placeholder-logo.png" />
       </head>
       <body className={inter.className}>
         <ThemeProvider
