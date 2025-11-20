@@ -23,12 +23,13 @@ export function Navbar() {
         // Try API
         const resp = await api.get<{ success: boolean; data: { user: User } }>("/auth/me")
         if (!cancelled) setUser(resp.data.user)
-      } catch {
-        // Fallback localStorage (if you stored it after login)
+      } catch (err) {
+        // If /auth/me fails, user is not logged in
         if (!cancelled) {
+          setUser(null)
           try {
             const lsUser = localStorage.getItem("user")
-            if (lsUser) setUser(JSON.parse(lsUser))
+            if (lsUser) localStorage.removeItem("user")
           } catch {}
         }
       } finally {
@@ -39,10 +40,21 @@ export function Navbar() {
   }, [])
 
   const handleLogout = async () => {
-    try { await api.post("/auth/logout") } catch {}
+    try { 
+      await api.post("/auth/logout")
+      console.log("✅ Logout API called")
+    } catch (err) {
+      console.error("Logout error:", err)
+    }
+    
+    // Clear frontend state
     localStorage.removeItem("user")
     setUser(null)
-    window.location.href = "/"
+    
+    // Redirect after a small delay to ensure state is cleared
+    setTimeout(() => {
+      window.location.href = "/"
+    }, 100)
   }
 
   const handleAnchorClick =

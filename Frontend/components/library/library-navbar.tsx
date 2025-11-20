@@ -15,11 +15,15 @@ export function LibraryNavbar() {
   const handleLogout = async () => {
     try {
       await api.post("/auth/logout")
-    } catch {
-      // ignore errors on logout
+      console.log("✅ Logout API called")
+    } catch (err) {
+      console.error("Logout error:", err)
     } finally {
       localStorage.removeItem("user")
-      router.push("/login")
+      // Use window.location for full refresh
+      setTimeout(() => {
+        window.location.href = "/login"
+      }, 100)
     }
   }
 

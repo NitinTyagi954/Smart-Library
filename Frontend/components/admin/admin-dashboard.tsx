@@ -40,9 +40,12 @@ export function AdminDashboard() {
   const handleLogout = async () => {
     try {
       await api.post("/auth/logout")
+      console.log("✅ Logout API called")
       localStorage.removeItem("user")
       toast({ title: "Logged out" })
-      router.push("/login")
+      setTimeout(() => {
+        window.location.href = "/login"
+      }, 100)
     } catch (e: any) {
       toast({ title: "Logout failed", description: e.message, variant: "destructive" })
     }
