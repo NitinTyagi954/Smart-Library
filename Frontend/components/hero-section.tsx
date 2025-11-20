@@ -17,7 +17,7 @@ export function HeroSection() {
     let cancelled = false
     ;(async () => {
       try {
-        const resp = await api.get<{ success: boolean; data: { user: User } }>("/api/auth/me")
+        const resp = await api.get<{ success: boolean; data: { user: User } }>("/auth/me")
         if (!cancelled) setUser(resp.data.user)
       } catch {
         // fallback localStorage if you still store user there
