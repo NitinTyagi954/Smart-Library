@@ -36,19 +36,19 @@ export interface RevenueMetricsResponse {
 // ---------- API Functions ----------
 export const subscriptionApi = {
   getCurrentSubscription: async (): Promise<SubscriptionResponse> => {
-    return api.get<SubscriptionResponse>("/subscription/current")
+    return api.get<SubscriptionResponse>("/api/subscription/current")
   },
 
   createSubscription: async (planData: { planType: string; duration?: number }): Promise<SubscriptionResponse> => {
-    return api.post<SubscriptionResponse>("/subscription", planData)
+    return api.post<SubscriptionResponse>("/api/subscription", planData)
   },
 
   renewSubscription: async (subscriptionId: string): Promise<SubscriptionResponse> => {
-    return api.post<SubscriptionResponse>(`/subscription/${subscriptionId}/renew`)
+    return api.post<SubscriptionResponse>(`/api/subscription/${subscriptionId}/renew`)
   },
 
   cancelSubscription: async (subscriptionId: string): Promise<SubscriptionResponse> => {
-    return api.put<SubscriptionResponse>(`/subscription/${subscriptionId}/status`, {
+    return api.put<SubscriptionResponse>(`/api/subscription/${subscriptionId}/status`, {
       status: "cancelled",
     })
   },
@@ -58,6 +58,6 @@ export const subscriptionApi = {
     if (params.startDate) queryParams.append("startDate", params.startDate)
     if (params.endDate) queryParams.append("endDate", params.endDate)
     
-    return api.get<RevenueMetricsResponse>(`/admin/revenue?${queryParams.toString()}`)
+    return api.get<RevenueMetricsResponse>(`/api/admin/revenue?${queryParams.toString()}`)
   },
 }

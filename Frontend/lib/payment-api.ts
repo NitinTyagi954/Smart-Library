@@ -29,7 +29,7 @@ export interface PaymentHistoryItem {
 export const paymentApi = {
   createOrder: async (plan: string, amount: number): Promise<OrderResponse> => {
     console.log("🔗 API createOrder called with:", { plan, amount })
-    return api.post<OrderResponse>("/payment/create-order", { plan, amount })
+    return api.post<OrderResponse>("/api/payment/create-order", { plan, amount })
   },
 
   verifyPayment: async (paymentData: {
@@ -54,10 +54,10 @@ export const paymentApi = {
       amount: paymentData.amount,
       addOns: paymentData.addOns,
     }
-    return api.post<VerifyPaymentResponse>("/payment/verify", payload)
+    return api.post<VerifyPaymentResponse>("/api/payment/verify", payload)
   },
 
   getPaymentHistory: async (): Promise<PaymentHistoryItem[]> => {
-    return api.get<PaymentHistoryItem[]>("/payment/history")
+    return api.get<PaymentHistoryItem[]>("/api/payment/history")
   },
 }

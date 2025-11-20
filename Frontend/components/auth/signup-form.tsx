@@ -60,7 +60,7 @@ export function SignupForm() {
       await api.post<{
         success: boolean
         message?: string
-      }>("/auth/register", {
+      }>("/api/auth/register", {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,

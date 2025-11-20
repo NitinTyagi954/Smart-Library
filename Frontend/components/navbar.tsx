@@ -21,7 +21,7 @@ export function Navbar() {
     ;(async () => {
       try {
         // Try API
-        const resp = await api.get<{ success: boolean; data: { user: User } }>("/auth/me")
+        const resp = await api.get<{ success: boolean; data: { user: User } }>("/api/auth/me")
         if (!cancelled) setUser(resp.data.user)
       } catch {
         // Fallback localStorage (if you stored it after login)
@@ -39,7 +39,7 @@ export function Navbar() {
   }, [])
 
   const handleLogout = async () => {
-    try { await api.post("/auth/logout") } catch {}
+    try { await api.post("/api/auth/logout") } catch {}
     localStorage.removeItem("user")
     setUser(null)
     window.location.href = "/"

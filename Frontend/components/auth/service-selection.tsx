@@ -23,7 +23,7 @@ export function ServiceSelection() {
           setUser(parsedUser)
         }
 
-        const resp = await api.get<{ success: boolean; data: { user: User } }>("/auth/me")
+        const resp = await api.get<{ success: boolean; data: { user: User } }>("/api/auth/me")
         if (resp.data.user) {
           setUser(resp.data.user)
           localStorage.setItem("user", JSON.stringify(resp.data.user))

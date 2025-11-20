@@ -122,7 +122,7 @@ export interface DeleteSeatsResponse {
 export const adminApi = {
   // Get dashboard statistics
   getDashboardStats: () => {
-    return api.get<DashboardStats>("/admin/dashboard-stats");
+    return api.get<DashboardStats>("/api/admin/dashboard-stats");
   },
 
   // Get all users with filters
@@ -140,21 +140,21 @@ export const adminApi = {
 
     const queryString = searchParams.toString();
     return api.get<AdminUsersResponse>(
-      `/admin/users${queryString ? `?${queryString}` : ""}`
+      `/api/admin/users${queryString ? `?${queryString}` : ""}`
     );
   },
 
   // Get user details
   getUserDetails: (userId: string) => {
-    return api.get<UserDetailsResponse>(`/admin/users/${userId}`);
+    return api.get<UserDetailsResponse>(`/api/admin/users/${userId}`);
   },
 
   // Seats
-  getSeats: () => api.get<SeatsResponse>("/admin/seats"),
+  getSeats: () => api.get<SeatsResponse>("/api/admin/seats"),
   updateSeat: (id: string, body: Partial<Pick<Seat, "occupied" | "occupancyType">>) =>
-    api.patch<SeatResponse>(`/admin/seats/${id}`, body),
+    api.patch<SeatResponse>(`/api/admin/seats/${id}`, body),
   addSeatsBulk: (type: SeatType, count: number) =>
-    api.post<SeatsResponse>("/admin/seats/bulk-add", { type, count }),
+    api.post<SeatsResponse>("/api/admin/seats/bulk-add", { type, count }),
   deleteSeats: (ids: string[]) =>
-    api.delWithBody<DeleteSeatsResponse>("/admin/seats", { ids }),
+    api.delWithBody<DeleteSeatsResponse>("/api/admin/seats", { ids }),
 };

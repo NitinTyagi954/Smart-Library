@@ -33,7 +33,7 @@ export function LoginForm() {
         data?: { user?: { email: string; name: string; role: "admin" | "student" } }
         message?: string
         error?: string
-      }>("/auth/login", {
+      }>("/api/auth/login", {
         email: formData.email,
         password: formData.password,
       })
