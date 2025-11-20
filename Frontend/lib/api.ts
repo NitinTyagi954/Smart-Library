@@ -1,5 +1,5 @@
 const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || ""
-export const API_BASE_URL = (rawApiUrl === "" ? "/api" : (rawApiUrl.replace(/\/$/, "") + "/api"))
+export const API_BASE_URL = rawApiUrl === "" ? "/api" : rawApiUrl
 
 type RequestOptions = Omit<RequestInit, "body"> & { body?: any; parseJson?: boolean }
 

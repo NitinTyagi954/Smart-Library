@@ -33,7 +33,7 @@ jobs:
           npm install
           npm run build
         env:
-          NEXT_PUBLIC_API_URL: "https://smartlibrary-backend-gtgnhmescehehuhj.eastasia-01.azurewebsites.net"
+          NEXT_PUBLIC_API_URL: "https://smartlibrary-backend-gtgnhmescehehuhj.eastasia-01.azurewebsites.net/api"
           NEXT_PUBLIC_RAZORPAY_KEY_ID: "rzp_test_Ri7s5aA9Wopztc"
       
       - name: Verify build output
