@@ -20,6 +20,18 @@ const env = {
   
   // URLs
   FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:3000",
+  // Comma-separated list of allowed origins for CORS. Example:
+  // ALLOWED_ORIGINS=https://gentle-bay-0cb5bce00.azurestaticapps.net,https://gentle-bay-0cb5bce00.3.azurestaticapps.net,http://localhost:3000
+  // If not set, default to FRONTEND_URL and a known variant including .3 for Azure SWA static URL.
+  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || (() => {
+    const frontend = process.env.FRONTEND_URL || "http://localhost:3000";
+    // If it's an Azure static apps domain (missing `.3`) add a `.3` variant too
+    if (frontend.includes("azurestaticapps.net") && !frontend.includes(".3.")) {
+      const with3 = frontend.replace(".azurestaticapps.net", ".3.azurestaticapps.net");
+      return `${frontend},${with3}`;
+    }
+    return frontend;
+  })(),
   BACKEND_URL: process.env.BACKEND_URL || "http://localhost:5000",
   
   // Email
