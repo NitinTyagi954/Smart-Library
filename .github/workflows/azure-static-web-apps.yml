@@ -1,0 +1,82 @@
+# ============================================================
+# Azure Static Web Apps Deployment Workflow
+# Auto-deploys to Azure on push to main branch
+# ============================================================
+#
+# SETUP INSTRUCTIONS:
+# 1. Create Azure Static Web App in portal.azure.com
+# 2. Copy the deployment token from Azure portal
+# 3. Add it as GitHub Secret: AZURE_STATIC_WEB_APPS_API_TOKEN
+# 4. Push to main branch to trigger deployment
+#
+# CUSTOM DOMAIN SETUP (librarysmart.me):
+# - In Azure portal → Custom domains → Add custom domain
+# - Add CNAME: www.librarysmart.me → <your-app>.azurestaticapps.net
+# - Add TXT for root: asuid.<your-app-id>
+# - Wait for DNS propagation (5-60 minutes)
+#
+# ============================================================
+
+name: Azure Static Web Apps CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
+
+jobs:
+  build_and_deploy_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build and Deploy Job
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
+
+      # Build and deploy to Azure Static Web Apps
+      - name: Build And Deploy
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          # Get this token from Azure Portal → Static Web App → Manage deployment token
+          # Add it to GitHub: Settings → Secrets → AZURE_STATIC_WEB_APPS_API_TOKEN
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+          action: "upload"
+          
+          ###### Repository/Build Configurations ######
+          app_location: "/Frontend" # App source code path relative to repository root
+          api_location: "" # Leave empty - we have separate backend on Railway/Render
+          output_location: ".next" # Next.js builds to .next folder (not 'out' for static export)
+          
+          ###### Build Configuration ######
+          # These run inside the /Frontend directory
+          # Install dependencies and build Next.js app
+          skip_app_build: false
+          
+        env:
+          # ============================================================
+          # ENVIRONMENT VARIABLES FOR PRODUCTION BUILD
+          # Add these in Azure Portal → Configuration → Application settings
+          # OR add them here as GitHub Secrets
+          # ============================================================
+          NEXT_PUBLIC_API_URL: "https://api.librarysmart.me"
+          NEXT_PUBLIC_RAZORPAY_KEY_ID: ${{ secrets.NEXT_PUBLIC_RAZORPAY_KEY_ID }}
+
+  close_pull_request_job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: Close Pull Request
+        id: closepullrequest
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: "close"
