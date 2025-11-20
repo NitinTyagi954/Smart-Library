@@ -3,22 +3,7 @@
   
   "_comment": "Azure Static Web Apps configuration for Next.js SPA",
   
-  "routes": [
-    {
-      "_comment": "Redirect HTTP to HTTPS for all traffic",
-      "route": "/*",
-      "allowedRoles": ["anonymous"],
-      "headers": {
-        "Strict-Transport-Security": "max-age=31536000; includeSubDomains"
-      }
-    },
-    {
-      "_comment": "SPA fallback - all routes serve index.html for client-side routing",
-      "route": "/*",
-      "rewrite": "/index.html",
-      "allowedRoles": ["anonymous"]
-    }
-  ],
+  "routes": [],
   
   "navigationFallback": {
     "rewrite": "/index.html",
@@ -56,12 +41,5 @@
   
   "networking": {
     "allowedIpRanges": []
-  },
-  
-  "_instructions": {
-    "setup": "Place this file in the /Frontend folder (same level as package.json)",
-    "deployment": "Azure will auto-detect this during GitHub Actions deployment",
-    "customDomain": "Configure in Azure Portal → Static Web Apps → Custom domains",
-    "cors": "Backend CORS must allow https://librarysmart.me and https://www.librarysmart.me"
   }
 }
