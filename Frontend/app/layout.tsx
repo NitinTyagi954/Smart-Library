@@ -5,8 +5,10 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { SpinnerProvider } from "@/components/ui/GlobalSpinner"
+import { GoogleOAuthProvider } from "@react-oauth/google"
 
 const inter = Inter({ subsets: ["latin"] })
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""
 
 export const metadata: Metadata = {
   title: "SmartLibrary",
@@ -28,17 +30,19 @@ export default function RootLayout({
         <link rel="icon" href="/placeholder-logo.png" />
       </head>
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <SpinnerProvider>
-            {children}
-            <Toaster />
-          </SpinnerProvider>
-        </ThemeProvider>
+        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SpinnerProvider>
+              {children}
+              <Toaster />
+            </SpinnerProvider>
+          </ThemeProvider>
+        </GoogleOAuthProvider>
       </body>
     </html>
   )

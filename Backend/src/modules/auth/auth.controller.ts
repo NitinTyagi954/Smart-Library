@@ -154,3 +154,23 @@ export const submitFeedback = asyncHandler(async (req: Request, res: Response) =
   res.status(200).json({ success: true, message: "Feedback emailed to admin" })
 })
 
+// Google Sign-In Controller
+export const googleSignIn = asyncHandler(async (req: Request, res: Response) => {
+  const { googleToken } = req.body;
+
+  if (!googleToken) {
+    return res.status(400).json({
+      success: false,
+      message: "Google token is required",
+    });
+  }
+
+  const user = await AuthService.googleSignIn(googleToken, res);
+
+  res.status(200).json({
+    success: true,
+    message: "Google sign-in successful",
+    data: { user: formatUserResponse(user) },
+  });
+});
+

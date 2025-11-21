@@ -11,6 +11,8 @@ import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { api } from "@/lib/api"
 import Link from "next/link"
+import { GoogleSignInButton } from "./google-signin-button"
+import { Separator } from "@/components/ui/separator"
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
@@ -150,6 +152,14 @@ export function LoginForm() {
           "Sign In"
         )}
       </Button>
+
+      <div className="flex items-center gap-4">
+        <Separator className="flex-1" />
+        <span className="text-sm text-muted-foreground">OR</span>
+        <Separator className="flex-1" />
+      </div>
+
+      <GoogleSignInButton />
     </form>
   )
 }

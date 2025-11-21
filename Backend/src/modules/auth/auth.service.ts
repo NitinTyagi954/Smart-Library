@@ -12,6 +12,7 @@ import {
 import { Response } from "express";
 import { PasswordResetToken } from "./passwordResetToken.model";
 import { sendMail } from "../../utils/mailer";
+import { OAuth2Client } from "google-auth-library";
 
 export class AuthService {
   // ==============================
@@ -95,6 +96,56 @@ export class AuthService {
   static async logout(res: Response) {
     clearAuthCookies(res);
     return { message: "Logged out successfully" };
+  }
+
+  // ==============================
+  // GOOGLE OAUTH SIGN-IN
+  // ==============================
+  static async googleSignIn(googleToken: string, res: Response) {
+    try {
+      // Initialize Google OAuth client
+      const client = new OAuth2Client(env.GOOGLE_CLIENT_ID);
+
+      // Verify the token
+      const ticket = await client.verifyIdToken({
+        idToken: googleToken,
+        audience: env.GOOGLE_CLIENT_ID,
+      });
+
+      const payload = ticket.getPayload();
+      if (!payload) throw new Error("Invalid Google token");
+
+      const { email, name, sub: googleId } = payload;
+
+      if (!email) throw new Error("Email not provided by Google");
+
+      // Find or create user
+      let user = await User.findOne({ email });
+
+      if (!user) {
+        // Create new user from Google data
+        user = await User.create({
+          name: name || email.split("@")[0],
+          email: email,
+          phone: "", // Google doesn't provide phone by default
+          role: "student", // Default role for OAuth users
+          passwordHash: crypto.randomBytes(32).toString("hex"), // Random hash for OAuth users
+          googleId: googleId, // Store Google ID
+        });
+      }
+
+      // Generate JWT tokens
+      const tokenPayload = { sub: user.id, role: user.role, v: user.tokenVersion };
+      const accessToken = signAccessToken(tokenPayload);
+      const refreshToken = signRefreshToken(tokenPayload);
+
+      // Set auth cookies
+      setAuthCookies(res, { accessToken, refreshToken });
+
+      return user;
+    } catch (error: any) {
+      throw new Error(`Google authentication failed: ${error.message}`);
+    }
   }
 
 

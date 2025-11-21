@@ -8,7 +8,8 @@ import {
   me,
   forgotPassword,
   resetPassword,
-  submitFeedback, // <- ensure this is imported
+  submitFeedback,
+  googleSignIn,
 } from "./auth.controller";
 import { authenticate } from "../../middleware/auth"; // JWT verification middleware
 
@@ -22,6 +23,7 @@ router.post("/refresh", refresh);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
 router.post("/feedback", submitFeedback);
+router.post("/google-signin", googleSignIn);
 
 // Protected routes (requires authentication)
 router.get("/me", authenticate, me);

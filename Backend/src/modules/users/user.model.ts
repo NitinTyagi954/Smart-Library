@@ -12,7 +12,7 @@ export interface IUser extends Document {
   updatedAt: Date;
   passwordChangedAt: Date;
   currentSubscription: mongoose.Types.ObjectId | null;
-  
+  googleId?: string;
 }
 
 const userSchema = new Schema<IUser>(
@@ -25,6 +25,7 @@ const userSchema = new Schema<IUser>(
     tokenVersion: { type: Number, default: 0 },
     passwordChangedAt: { type: Date, default: null },
     currentSubscription: { type: Schema.Types.ObjectId, ref: "Subscription", default: null },
+    googleId: { type: String, unique: true, sparse: true },
   },
   { timestamps: true }
 );
