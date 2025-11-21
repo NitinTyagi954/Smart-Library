@@ -63,14 +63,13 @@ jobs:
           slot-name: 'Production'
           package: .
       
-      - name: Set App Service Application Settings
-        uses: Azure/appservice-settings@v1
-        with:
-          app-name: 'smartlibrary-backend'
-          mask-inputs: 'true'
-          general-settings-json-string: |
-            {
-              "FRONTEND_URL": "https://www.librarysmart.me",
-              "ALLOWED_ORIGINS": "https://www.librarysmart.me,https://librarysmart.me,http://localhost:3000"
-            }
+      - name: 'Configure App Service settings via Azure CLI'
+        run: |
+          az webapp config appsettings set \
+            --resource-group smartlibrary-rg \
+            --name smartlibrary-backend \
+            --settings \
+              FRONTEND_URL="https://www.librarysmart.me" \
+              ALLOWED_ORIGINS="https://www.librarysmart.me,https://librarysmart.me,http://localhost:3000" \
+              NODE_ENV="production"
           

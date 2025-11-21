@@ -18,19 +18,35 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // CORS configuration
-const allowedOrigins = (env.ALLOWED_ORIGINS || env.FRONTEND_URL).split(",").map(s => s.trim());
+const allowedOrigins = (() => {
+  const origins = process.env.ALLOWED_ORIGINS || process.env.FRONTEND_URL || "http://localhost:3000";
+  console.log("🔐 ALLOWED_ORIGINS env var:", process.env.ALLOWED_ORIGINS);
+  console.log("📍 FRONTEND_URL env var:", process.env.FRONTEND_URL);
+  const parsed = origins.split(",").map(s => s.trim());
+  console.log("✅ Parsed allowed origins:", parsed);
+  return parsed;
+})();
 
 app.use(cors({
   origin: (origin, callback) => {
+    console.log(`🌐 CORS check for origin: ${origin}`);
     // Allow requests with no origin (like mobile apps or curl)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    if (!origin) {
+      console.log("✅ No origin - allowing");
+      return callback(null, true);
+    }
+    if (allowedOrigins.includes(origin)) {
+      console.log(`✅ Origin ${origin} allowed`);
+      return callback(null, true);
+    }
     // Otherwise, block
+    console.log(`❌ Origin ${origin} blocked. Allowed: ${allowedOrigins.join(", ")}`);
     return callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
   methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
   allowedHeaders: ["Content-Type","Authorization"],
+  maxAge: 86400,
 }));
 
 // Routes
