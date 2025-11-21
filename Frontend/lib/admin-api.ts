@@ -99,7 +99,9 @@ export interface Seat {
   seatNumber: string;
   type: SeatType;
   occupied: boolean;
+  occupiedBy?: string;
   occupancyType: OccupancyType | null;
+  userId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -151,7 +153,7 @@ export const adminApi = {
 
   // Seats
   getSeats: () => api.get<SeatsResponse>("/admin/seats"),
-  updateSeat: (id: string, body: Partial<Pick<Seat, "occupied" | "occupancyType">>) =>
+  updateSeat: (id: string, body: Partial<Pick<Seat, "occupied" | "occupancyType" | "occupiedBy">>) =>
     api.patch<SeatResponse>(`/admin/seats/${id}`, body),
   addSeatsBulk: (type: SeatType, count: number) =>
     api.post<SeatsResponse>("/admin/seats/bulk-add", { type, count }),

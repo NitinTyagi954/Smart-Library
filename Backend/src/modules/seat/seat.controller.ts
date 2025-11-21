@@ -56,7 +56,7 @@ export const getSeats = async (_req: Request, res: Response) => {
 
 export const updateSeat = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { occupied, occupancyType }: Partial<Pick<ISeat, "occupied" | "occupancyType">> = req.body || {};
+  const { occupied, occupancyType, occupiedBy }: Partial<Pick<ISeat, "occupied" | "occupancyType" | "occupiedBy">> = req.body || {};
 
   const seat = await Seat.findById(id);
   if (!seat) {
@@ -69,13 +69,16 @@ export const updateSeat = async (req: Request, res: Response) => {
   // - If only occupancyType is provided while currently not occupied, set occupied=true
   let nextOccupied = seat.occupied;
   let nextOccType = seat.occupancyType;
+  let nextOccupiedBy = seat.occupiedBy;
 
   if (typeof occupied === "boolean") {
     nextOccupied = occupied;
     if (occupied) {
       nextOccType = (occupancyType as OccupancyType) || "FULL_DAY";
+      nextOccupiedBy = occupiedBy || seat.occupiedBy;
     } else {
       nextOccType = null;
+      nextOccupiedBy = undefined;
     }
   } else if (occupancyType !== undefined) {
     const val = occupancyType as OccupancyType | null;
@@ -83,6 +86,7 @@ export const updateSeat = async (req: Request, res: Response) => {
       // clearing occupancy type implies available
       nextOccupied = false;
       nextOccType = null;
+      nextOccupiedBy = undefined;
     } else {
       // selecting a type implies occupied
       if (!["FULL_DAY", "MORNING", "EVENING"].includes(val)) {
@@ -90,6 +94,7 @@ export const updateSeat = async (req: Request, res: Response) => {
       }
       nextOccupied = true;
       nextOccType = val;
+      nextOccupiedBy = occupiedBy || seat.occupiedBy;
     }
   }
 
@@ -100,6 +105,7 @@ export const updateSeat = async (req: Request, res: Response) => {
 
   seat.occupied = nextOccupied;
   seat.occupancyType = nextOccType as any;
+  seat.occupiedBy = nextOccupiedBy;
   await seat.save();
 
   return res.json({ success: true, data: seat });

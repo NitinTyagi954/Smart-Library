@@ -17,6 +17,8 @@ export function SeatManagement() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [addType, setAddType] = useState<SeatType>("REGULAR")
   const [addCount, setAddCount] = useState<number>(1)
+  const [occupiedByName, setOccupiedByName] = useState<string>("")
+  const [editingSeatId, setEditingSeatId] = useState<string | null>(null)
 
   useEffect(() => {
     const load = async () => {
@@ -116,13 +118,34 @@ export function SeatManagement() {
 
   const handleToggleOccupied = async (seat: Seat, next: boolean) => {
     try {
-      // If toggling to occupied and no occupancyType set, default to FULL_DAY
-      const body: Partial<Pick<Seat, "occupied" | "occupancyType">> = next
-        ? { occupied: true, occupancyType: seat.occupancyType ?? "FULL_DAY" }
-        : { occupied: false, occupancyType: null }
+      let body: Partial<Pick<Seat, "occupied" | "occupancyType" | "occupiedBy">>
+      
+      if (next) {
+        // Toggling to occupied - require a name
+        const name = occupiedByName.trim() || seat.occupiedBy
+        if (!name) {
+          setError("Please enter the name of the person occupying the seat")
+          return
+        }
+        body = {
+          occupied: true,
+          occupancyType: seat.occupancyType ?? "FULL_DAY",
+          occupiedBy: name
+        }
+      } else {
+        // Toggling to available
+        body = {
+          occupied: false,
+          occupancyType: null,
+          occupiedBy: null as any
+        }
+      }
 
       const res = await adminApi.updateSeat(seat._id, body)
       setSeats(prev => prev.map(s => (s._id === seat._id ? res.data : s)))
+      setOccupiedByName("")
+      setEditingSeatId(null)
+      
       // If seat becomes occupied, ensure it's not selected for deletion
       if (res.data.occupied) {
         setSelectedIds(prev => {
@@ -164,23 +187,23 @@ export function SeatManagement() {
           <div className="mt-2 text-3xl font-bold text-foreground">{stats.total}</div>
           <div className="mt-1 text-xs text-muted-foreground">Library capacity</div>
         </div>
-        <div className="rounded-lg border border-orange-200 bg-gradient-to-br from-orange-50 to-transparent p-4">
+        <div className="rounded-lg border border-chart-4/30 bg-gradient-to-br from-chart-4/10 to-transparent p-4 dark:from-chart-4/20">
           <div className="text-sm font-medium text-muted-foreground">Occupied Seats</div>
-          <div className="mt-2 text-3xl font-bold text-orange-600">{stats.occupied}</div>
-          <div className="mt-1 text-xs text-orange-600">{stats.occupancyRate}% occupancy</div>
+          <div className="mt-2 text-3xl font-bold text-chart-4">{stats.occupied}</div>
+          <div className="mt-1 text-xs text-chart-4/80">{stats.occupancyRate}% occupancy</div>
         </div>
-        <div className="rounded-lg border border-green-200 bg-gradient-to-br from-green-50 to-transparent p-4">
+        <div className="rounded-lg border border-secondary/30 bg-gradient-to-br from-secondary/10 to-transparent p-4 dark:from-secondary/20">
           <div className="text-sm font-medium text-muted-foreground">Available Seats</div>
-          <div className="mt-2 text-3xl font-bold text-green-600">{stats.available}</div>
-          <div className="mt-1 text-xs text-green-600">Ready for booking</div>
+          <div className="mt-2 text-3xl font-bold text-secondary">{stats.available}</div>
+          <div className="mt-1 text-xs text-secondary/80">Ready for booking</div>
         </div>
-        <div className="rounded-lg border border-blue-200 bg-gradient-to-br from-blue-50 to-transparent p-4">
+        <div className="rounded-lg border border-chart-1/30 bg-gradient-to-br from-chart-1/10 to-transparent p-4 dark:from-chart-1/20">
           <div className="text-sm font-medium text-muted-foreground">Occupancy Rate</div>
-          <div className="mt-2 text-3xl font-bold text-blue-600">{stats.occupancyRate}%</div>
-          <div className="mt-1 text-xs text-blue-600">
-            <div className="w-full bg-blue-200 rounded-full h-2 mt-1">
+          <div className="mt-2 text-3xl font-bold text-chart-1">{stats.occupancyRate}%</div>
+          <div className="mt-1 text-xs text-chart-1/80">
+            <div className="w-full bg-chart-1/20 rounded-full h-2 mt-1 dark:bg-chart-1/40">
               <div
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                className="bg-chart-1 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${stats.occupancyRate}%` }}
               />
             </div>
@@ -326,9 +349,9 @@ export function SeatManagement() {
                     key={seat._id}
                     className={`relative rounded-lg border-2 transition-all ${
                       available
-                        ? "border-green-200 bg-green-50 hover:shadow-md"
-                        : "border-orange-200 bg-orange-50 hover:shadow-md"
-                    } ${isSelected ? "ring-2 ring-primary ring-offset-2" : ""}`}
+                        ? "border-secondary/30 bg-secondary/5 dark:bg-secondary/10 hover:shadow-md"
+                        : "border-chart-4/30 bg-chart-4/5 dark:bg-chart-4/10 hover:shadow-md"
+                    } ${isSelected ? "ring-2 ring-primary ring-offset-2 dark:ring-offset-background" : ""}`}
                   >
                     {/* Checkbox */}
                     {available && (
@@ -353,8 +376,8 @@ export function SeatManagement() {
                         <span
                           className={`inline-block text-[10px] font-semibold px-2 py-1 rounded-full ${
                             seat.type === "REGULAR"
-                              ? "bg-blue-100 text-blue-700"
-                              : "bg-purple-100 text-purple-700"
+                              ? "bg-chart-1/20 text-chart-1 dark:bg-chart-1/30 dark:text-chart-1"
+                              : "bg-accent/20 text-accent dark:bg-accent/30 dark:text-accent"
                           }`}
                         >
                           {seat.type === "REGULAR" ? "🪑 Regular" : "⭐ Special"}
@@ -362,20 +385,56 @@ export function SeatManagement() {
                       </div>
 
                       {/* Status */}
-                      <div className="flex items-center gap-1 mb-3">
+                      <div className="flex items-center gap-1 mb-2">
                         <span
                           className={`text-xs font-medium ${
-                            available ? "text-green-700" : "text-orange-700"
+                            available ? "text-secondary dark:text-secondary" : "text-chart-4 dark:text-chart-4"
                           }`}
                         >
                           {available ? "✓ Available" : "✗ Occupied"}
                         </span>
                       </div>
 
+                      {/* Occupied By */}
+                      {!available && seat.occupiedBy && (
+                        <div className="mb-2">
+                          <p className="text-[10px] text-muted-foreground">Occupied by:</p>
+                          <p className="text-xs font-semibold text-foreground truncate">{seat.occupiedBy}</p>
+                        </div>
+                      )}
+
+                      {/* Edit Occupied By Name */}
+                      {editingSeatId === seat._id && !available && (
+                        <div className="mb-3">
+                          <input
+                            type="text"
+                            placeholder="Enter name"
+                            value={occupiedByName}
+                            onChange={(e) => setOccupiedByName(e.target.value)}
+                            className="w-full border rounded px-2 py-1 text-xs bg-background text-foreground dark:bg-input dark:border-border"
+                            autoFocus
+                          />
+                        </div>
+                      )}
+
+                      {/* Mark as Occupied Input */}
+                      {editingSeatId === seat._id && available && (
+                        <div className="mb-3">
+                          <input
+                            type="text"
+                            placeholder="Enter name"
+                            value={occupiedByName}
+                            onChange={(e) => setOccupiedByName(e.target.value)}
+                            className="w-full border rounded px-2 py-1 text-xs bg-background text-foreground dark:bg-input dark:border-border"
+                            autoFocus
+                          />
+                        </div>
+                      )}
+
                       {/* Occupancy Type */}
                       <div className="mb-3">
                         <select
-                          className="w-full border rounded px-2 py-1 text-xs bg-white"
+                          className="w-full border rounded px-2 py-1 text-xs bg-background text-foreground dark:bg-input dark:border-border"
                           value={seat.occupied ? (seat.occupancyType || "FULL_DAY") : ""}
                           onChange={(e) =>
                             handleChangeOccupancyType(seat, (e.target.value || "") as OccupancyType | "")
@@ -389,16 +448,39 @@ export function SeatManagement() {
                       </div>
 
                       {/* Mark Button */}
-                      <button
-                        onClick={() => handleToggleOccupied(seat, !seat.occupied)}
-                        className={`w-full text-xs font-medium px-2 py-1.5 rounded transition ${
-                          seat.occupied
-                            ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
-                            : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
-                        }`}
-                      >
-                        {seat.occupied ? "Available" : "Occupied"}
-                      </button>
+                      {editingSeatId === seat._id ? (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleToggleOccupied(seat, !seat.occupied)}
+                            className="flex-1 text-xs font-medium px-2 py-1.5 rounded bg-primary text-primary-foreground hover:bg-primary/90 transition"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditingSeatId(null)
+                              setOccupiedByName("")
+                            }}
+                            className="flex-1 text-xs font-medium px-2 py-1.5 rounded border border-muted text-muted-foreground hover:bg-muted transition"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setEditingSeatId(seat._id)
+                            setOccupiedByName(seat.occupiedBy || "")
+                          }}
+                          className={`w-full text-xs font-medium px-2 py-1.5 rounded transition ${
+                            seat.occupied
+                              ? "bg-chart-4/20 text-chart-4 hover:bg-chart-4/30 dark:bg-chart-4/30 dark:text-chart-4 dark:hover:bg-chart-4/40"
+                              : "bg-secondary/20 text-secondary hover:bg-secondary/30 dark:bg-secondary/30 dark:text-secondary dark:hover:bg-secondary/40"
+                          }`}
+                        >
+                          {seat.occupied ? "Available" : "Occupied"}
+                        </button>
+                      )}
                     </div>
                   </div>
                 )

@@ -3,6 +3,7 @@ import * as paymentService from "./service";
 import Payment from "./model";
 import Subscription from "../subscription/model";
 import User from "../users/user.model";
+import { Seat } from "../seat/seat.model";
 
 /**
  * Create a new Razorpay order
@@ -120,6 +121,51 @@ export const verifyPayment = async (req: Request, res: Response) => {
       registrationIncluded: !!addOns?.registration,
       lockerIncluded: !!addOns?.locker,
     });
+
+    // Auto-allocate a seat if seatType is specified
+    if (seatType && seatType !== "NONE" && seatType !== "None") {
+      try {
+        const user = await User.findById(userId);
+        const userName = user?.name || "Unknown";
+        
+        // Convert seatType from frontend format ("Regular"/"Special") to backend format ("REGULAR"/"SPECIAL")
+        // Handle both "Regular"/"Special" and "REGULAR"/"SPECIAL" formats
+        const normalizedSeatType = seatType?.toLowerCase().includes("special") ? "SPECIAL" : "REGULAR";
+        
+        console.log(`🔄 Attempting to allocate ${normalizedSeatType} seat for user: ${userName} (seatType input: ${seatType})`);
+        
+        // Find an available seat matching the requested seatType
+        const availableSeat = await Seat.findOneAndUpdate(
+          {
+            type: normalizedSeatType,
+            occupied: false
+          },
+          {
+            occupied: true,
+            occupiedBy: userName,
+            userId: userId.toString(),
+            occupancyType: shift === "Morning" ? "MORNING" : shift === "Evening" ? "EVENING" : "FULL_DAY"
+          },
+          { new: true }
+        );
+
+        if (availableSeat) {
+          console.log(`✅ Seat ${availableSeat.seatNumber} allocated to ${userName} (User ID: ${userId})`);
+          // Update subscription with seat info
+          await Subscription.findByIdAndUpdate(subscription._id, {
+            seatNumber: availableSeat.seatNumber,
+            seatId: availableSeat._id
+          });
+        } else {
+          console.warn(`⚠️ No available ${normalizedSeatType} seats found for allocation`);
+        }
+      } catch (seatError: any) {
+        console.error("❌ Seat allocation error:", seatError);
+        // Don't fail the payment if seat allocation fails
+      }
+    } else {
+      console.log(`⏭️ Skipping seat allocation - seatType: ${seatType}`);
+    }
 
     return res.json({ 
       success: true, 

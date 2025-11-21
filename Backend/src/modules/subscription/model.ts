@@ -15,6 +15,8 @@ export interface ISubscription extends Document {
   shift?: string;
   seatType?: string;
   amountPaid?: number;
+  seatId?: mongoose.Types.ObjectId | null;
+  seatNumber?: string;
 }
 
 const subscriptionSchema = new Schema<ISubscription>(
@@ -32,6 +34,8 @@ const subscriptionSchema = new Schema<ISubscription>(
     shift: { type: String },
     seatType: { type: String },
     amountPaid: { type: Number },
+    seatId: { type: Schema.Types.ObjectId, default: null },
+    seatNumber: { type: String, default: null },
   },
   { timestamps: true }
 );
