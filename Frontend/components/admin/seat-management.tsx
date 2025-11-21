@@ -157,202 +157,253 @@ export function SeatManagement() {
 
   return (
     <div className="space-y-6">
-      {/* Stats */}
+      {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="rounded-lg border p-4">
-          <div className="text-sm text-muted-foreground">Total Seats</div>
-          <div className="mt-2 text-2xl font-semibold">{stats.total}</div>
+        <div className="rounded-lg border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-4">
+          <div className="text-sm font-medium text-muted-foreground">Total Seats</div>
+          <div className="mt-2 text-3xl font-bold text-foreground">{stats.total}</div>
+          <div className="mt-1 text-xs text-muted-foreground">Library capacity</div>
         </div>
-        <div className="rounded-lg border p-4">
-          <div className="text-sm text-muted-foreground">Occupied Seats</div>
-          <div className="mt-2 text-2xl font-semibold">{stats.occupied}</div>
+        <div className="rounded-lg border border-orange-200 bg-gradient-to-br from-orange-50 to-transparent p-4">
+          <div className="text-sm font-medium text-muted-foreground">Occupied Seats</div>
+          <div className="mt-2 text-3xl font-bold text-orange-600">{stats.occupied}</div>
+          <div className="mt-1 text-xs text-orange-600">{stats.occupancyRate}% occupancy</div>
         </div>
-        <div className="rounded-lg border p-4">
-          <div className="text-sm text-muted-foreground">Available Seats</div>
-          <div className="mt-2 text-2xl font-semibold">{stats.available}</div>
+        <div className="rounded-lg border border-green-200 bg-gradient-to-br from-green-50 to-transparent p-4">
+          <div className="text-sm font-medium text-muted-foreground">Available Seats</div>
+          <div className="mt-2 text-3xl font-bold text-green-600">{stats.available}</div>
+          <div className="mt-1 text-xs text-green-600">Ready for booking</div>
         </div>
-        <div className="rounded-lg border p-4">
-          <div className="text-sm text-muted-foreground">Occupancy Rate</div>
-          <div className="mt-2 text-2xl font-semibold">{stats.occupancyRate}%</div>
-        </div>
-      </div>
-
-      {/* Controls */}
-      <div className="rounded-lg border p-4 space-y-4">
-        <div className="flex flex-col md:flex-row gap-3 md:items-end md:justify-between">
-          {/* Add seats */}
-          <div className="flex flex-wrap items-end gap-2">
-            <div className="flex flex-col">
-              <label className="text-sm text-muted-foreground">Type</label>
-              <select
-                className="border rounded px-2 py-1"
-                value={addType}
-                onChange={(e) => setAddType(e.target.value as SeatType)}
-              >
-                <option value="REGULAR">Regular</option>
-                <option value="SPECIAL">Special</option>
-              </select>
-            </div>
-            <div className="flex flex-col">
-              <label className="text-sm text-muted-foreground">Count</label>
-              <input
-                type="number"
-                min={1}
-                className="border rounded px-2 py-1 w-24"
-                value={addCount}
-                onChange={(e) => setAddCount(parseInt(e.target.value || "0", 10))}
+        <div className="rounded-lg border border-blue-200 bg-gradient-to-br from-blue-50 to-transparent p-4">
+          <div className="text-sm font-medium text-muted-foreground">Occupancy Rate</div>
+          <div className="mt-2 text-3xl font-bold text-blue-600">{stats.occupancyRate}%</div>
+          <div className="mt-1 text-xs text-blue-600">
+            <div className="w-full bg-blue-200 rounded-full h-2 mt-1">
+              <div
+                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${stats.occupancyRate}%` }}
               />
             </div>
-            <button
-              onClick={handleAddSeats}
-              className="inline-flex items-center rounded bg-primary px-3 py-2 text-primary-foreground text-sm hover:opacity-90"
-            >
-              Add Seats
-            </button>
-          </div>
-
-          {/* Delete selected */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleDeleteSelected}
-              disabled={selectedIds.size === 0}
-              className="inline-flex items-center rounded bg-destructive px-3 py-2 text-destructive-foreground text-sm disabled:opacity-50"
-            >
-              Delete Selected ({selectedIds.size})
-            </button>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="flex flex-wrap gap-3">
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-muted-foreground">Seat Type</label>
-            <select
-              className="border rounded px-2 py-1"
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value as FilterType)}
-            >
-              <option value="ALL">All</option>
-              <option value="REGULAR">Regular</option>
-              <option value="SPECIAL">Special</option>
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-muted-foreground">Availability</label>
-            <select
-              className="border rounded px-2 py-1"
-              value={filterAvail}
-              onChange={(e) => setFilterAvail(e.target.value as FilterAvailability)}
-            >
-              <option value="ALL">All</option>
-              <option value="AVAILABLE_FULL">Available Full Day</option>
-              <option value="AVAILABLE_MORNING">Available Morning Shift</option>
-              <option value="AVAILABLE_EVENING">Available Evening Shift</option>
-            </select>
-          </div>
-
-          {/* Select/Deselect visible */}
-          <div className="flex items-center gap-2 ml-auto">
-            <button
-              onClick={() => selectAllVisible(true)}
-              className="text-sm underline"
-            >
-              Select visible (available only)
-            </button>
-            <button
-              onClick={() => selectAllVisible(false)}
-              className="text-sm underline"
-            >
-              Clear selection
-            </button>
           </div>
         </div>
       </div>
 
-      {/* Error */}
+      {/* Controls Section */}
+      <div className="rounded-lg border p-5 bg-card">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          {/* Add Seats */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Add Seats</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Seat Type</label>
+                <select
+                  className="w-full border rounded-md px-3 py-2 bg-background text-sm"
+                  value={addType}
+                  onChange={(e) => setAddType(e.target.value as SeatType)}
+                >
+                  <option value="REGULAR">🪑 Regular</option>
+                  <option value="SPECIAL">⭐ Special</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Count</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={100}
+                  className="w-full border rounded-md px-3 py-2 bg-background text-sm"
+                  value={addCount}
+                  onChange={(e) => setAddCount(Math.min(100, Math.max(1, parseInt(e.target.value || "1", 10))))}
+                />
+              </div>
+              <button
+                onClick={handleAddSeats}
+                className="w-full inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition"
+              >
+                Add Seats
+              </button>
+            </div>
+          </div>
+
+          {/* Filters */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Filter Seats</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Seat Type</label>
+                <select
+                  className="w-full border rounded-md px-3 py-2 bg-background text-sm"
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value as FilterType)}
+                >
+                  <option value="ALL">All Types</option>
+                  <option value="REGULAR">Regular Only</option>
+                  <option value="SPECIAL">Special Only</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Availability</label>
+                <select
+                  className="w-full border rounded-md px-3 py-2 bg-background text-sm"
+                  value={filterAvail}
+                  onChange={(e) => setFilterAvail(e.target.value as FilterAvailability)}
+                >
+                  <option value="ALL">All Status</option>
+                  <option value="AVAILABLE_FULL">Available Full Day</option>
+                  <option value="AVAILABLE_MORNING">Morning Shift</option>
+                  <option value="AVAILABLE_EVENING">Evening Shift</option>
+                </select>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => selectAllVisible(true)}
+                  className="flex-1 text-xs font-medium px-2 py-2 rounded border border-primary text-primary hover:bg-primary/10 transition"
+                >
+                  Select All
+                </button>
+                <button
+                  onClick={() => selectAllVisible(false)}
+                  className="flex-1 text-xs font-medium px-2 py-2 rounded border border-muted text-muted-foreground hover:bg-muted transition"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Delete Selected */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Bulk Actions</h3>
+            <div className="space-y-3 h-full flex flex-col">
+              <div className="flex-1">
+                <div className="text-2xl font-bold text-destructive">{selectedIds.size}</div>
+                <div className="text-xs text-muted-foreground">seats selected</div>
+              </div>
+              <button
+                onClick={handleDeleteSelected}
+                disabled={selectedIds.size === 0}
+                className="w-full inline-flex items-center justify-center rounded-md bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                Delete Selected
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Error Message */}
       {error && (
-        <div className="rounded border border-destructive/40 bg-destructive/10 text-destructive px-3 py-2 text-sm">
-          {error}
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          <div className="font-medium">Error</div>
+          <div>{error}</div>
         </div>
       )}
 
-      {/* Seats grid */}
-      <div className="rounded-lg border">
+      {/* Seats Grid */}
+      <div className="rounded-lg border overflow-hidden bg-card">
         {loading ? (
-          <div className="p-6 text-sm text-muted-foreground">Loading seats…</div>
+          <div className="p-12 text-center">
+            <div className="inline-block animate-spin">⏳</div>
+            <div className="text-sm text-muted-foreground mt-2">Loading seats…</div>
+          </div>
         ) : filteredSeats.length === 0 ? (
-          <div className="p-6 text-sm text-muted-foreground">No seats to display.</div>
+          <div className="p-12 text-center">
+            <div className="text-2xl mb-2">📭</div>
+            <div className="text-sm text-muted-foreground">No seats to display with current filters</div>
+          </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 p-4">
-            {filteredSeats.map((seat) => {
-              const isSelected = selectedIds.has(seat._id)
-              const available = !seat.occupied
-              return (
-                <div
-                  key={seat._id}
-                  className={`rounded border p-2 text-sm transition hover:shadow-sm ${seat.occupied ? "bg-muted" : "bg-background"}`}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="font-medium">{seat.seatNumber}</div>
-                    <span
-                      className={`text-[10px] px-2 py-0.5 rounded-full ${
-                        seat.type === "REGULAR" ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"
-                      }`}
-                    >
-                      {seat.type === "REGULAR" ? "Regular" : "Special"}
-                    </span>
-                  </div>
+          <div className="p-4 lg:p-6">
+            <div className="text-sm font-medium text-muted-foreground mb-4">
+              Showing {filteredSeats.length} seat(s)
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+              {filteredSeats.map((seat) => {
+                const isSelected = selectedIds.has(seat._id)
+                const available = !seat.occupied
+                return (
+                  <div
+                    key={seat._id}
+                    className={`relative rounded-lg border-2 transition-all ${
+                      available
+                        ? "border-green-200 bg-green-50 hover:shadow-md"
+                        : "border-orange-200 bg-orange-50 hover:shadow-md"
+                    } ${isSelected ? "ring-2 ring-primary ring-offset-2" : ""}`}
+                  >
+                    {/* Checkbox */}
+                    {available && (
+                      <div className="absolute top-2 right-2">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => toggleSelect(seat._id, e.target.checked)}
+                          className="w-4 h-4 cursor-pointer"
+                        />
+                      </div>
+                    )}
 
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className={`text-xs ${available ? "text-green-600" : "text-red-600"}`}>
-                      {available ? "Available" : "Occupied"}
-                    </span>
+                    <div className="p-3">
+                      {/* Seat Number */}
+                      <div className="font-bold text-lg text-foreground mb-1">
+                        {seat.seatNumber}
+                      </div>
 
-                    <label className="inline-flex items-center gap-1 text-xs cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        disabled={!available}
-                        onChange={(e) => toggleSelect(seat._id, e.target.checked)}
-                      />
-                      Select
-                    </label>
-                  </div>
+                      {/* Seat Type Badge */}
+                      <div className="mb-2">
+                        <span
+                          className={`inline-block text-[10px] font-semibold px-2 py-1 rounded-full ${
+                            seat.type === "REGULAR"
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-purple-100 text-purple-700"
+                          }`}
+                        >
+                          {seat.type === "REGULAR" ? "🪑 Regular" : "⭐ Special"}
+                        </span>
+                      </div>
 
-                  <div className="mt-2">
-                    <label className="block text-[11px] text-muted-foreground mb-1">
-                      Occupancy Type
-                    </label>
-                    <select
-                      className="w-full border rounded px-2 py-1 text-xs"
-                      value={seat.occupied ? (seat.occupancyType || "FULL_DAY") : ""}
-                      onChange={(e) =>
-                        handleChangeOccupancyType(seat, (e.target.value || "") as OccupancyType | "")
-                      }
-                    >
-                      <option value="">{available ? "— Available —" : "Set type…"}</option>
-                      <option value="FULL_DAY">Full Day</option>
-                      <option value="MORNING">Morning Shift</option>
-                      <option value="EVENING">Evening Shift</option>
-                    </select>
-                  </div>
+                      {/* Status */}
+                      <div className="flex items-center gap-1 mb-3">
+                        <span
+                          className={`text-xs font-medium ${
+                            available ? "text-green-700" : "text-orange-700"
+                          }`}
+                        >
+                          {available ? "✓ Available" : "✗ Occupied"}
+                        </span>
+                      </div>
 
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className="text-[11px] text-muted-foreground">Status</span>
-                    <button
-                      onClick={() => handleToggleOccupied(seat, !seat.occupied)}
-                      className={`text-xs px-2 py-1 rounded ${
-                        seat.occupied
-                          ? "bg-amber-100 text-amber-800"
-                          : "bg-emerald-100 text-emerald-800"
-                      }`}
-                    >
-                      {seat.occupied ? "Mark Available" : "Mark Occupied"}
-                    </button>
+                      {/* Occupancy Type */}
+                      <div className="mb-3">
+                        <select
+                          className="w-full border rounded px-2 py-1 text-xs bg-white"
+                          value={seat.occupied ? (seat.occupancyType || "FULL_DAY") : ""}
+                          onChange={(e) =>
+                            handleChangeOccupancyType(seat, (e.target.value || "") as OccupancyType | "")
+                          }
+                        >
+                          <option value="">{available ? "— Available —" : "— Select —"}</option>
+                          <option value="FULL_DAY">Full Day</option>
+                          <option value="MORNING">Morning</option>
+                          <option value="EVENING">Evening</option>
+                        </select>
+                      </div>
+
+                      {/* Mark Button */}
+                      <button
+                        onClick={() => handleToggleOccupied(seat, !seat.occupied)}
+                        className={`w-full text-xs font-medium px-2 py-1.5 rounded transition ${
+                          seat.occupied
+                            ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
+                            : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+                        }`}
+                      >
+                        {seat.occupied ? "Available" : "Occupied"}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
           </div>
         )}
       </div>
