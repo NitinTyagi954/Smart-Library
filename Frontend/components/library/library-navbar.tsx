@@ -20,10 +20,10 @@ export function LibraryNavbar() {
       console.error("Logout error:", err)
     } finally {
       localStorage.removeItem("user")
-      // Use window.location for full refresh
+      // Use window.location for full page refresh and clear cookies
       setTimeout(() => {
         window.location.href = "/login"
-      }, 100)
+      }, 200)
     }
   }
 

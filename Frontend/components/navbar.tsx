@@ -51,10 +51,10 @@ export function Navbar() {
     localStorage.removeItem("user")
     setUser(null)
     
-    // Redirect after a small delay to ensure state is cleared
+    // Redirect to login page after clearing cookies
     setTimeout(() => {
-      window.location.href = "/"
-    }, 100)
+      window.location.href = "/login"
+    }, 200)
   }
 
   const handleAnchorClick =

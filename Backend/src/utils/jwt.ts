@@ -126,7 +126,16 @@ export const setAuthCookies = (
 // 🧹 Clear Cookies
 // ==============================
 export const clearAuthCookies = (res: Response) => {
-  res.clearCookie("access_token", { path: "/" });
-  res.clearCookie("refresh_token", { path: "/" });
+  const isProd = env.NODE_ENV === "production";
+  
+  const cookieOptions = {
+    httpOnly: true,
+    sameSite: isProd ? ("none" as const) : ("lax" as const),
+    secure: isProd,
+    path: "/",
+  };
+  
+  res.clearCookie("access_token", { ...cookieOptions });
+  res.clearCookie("refresh_token", { ...cookieOptions });
   console.log("🧹 Cleared auth cookies");
 };

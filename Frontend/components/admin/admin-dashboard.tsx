@@ -41,13 +41,14 @@ export function AdminDashboard() {
     try {
       await api.post("/auth/logout")
       console.log("✅ Logout API called")
+    } catch (err) {
+      console.error("Logout error:", err)
+    } finally {
       localStorage.removeItem("user")
       toast({ title: "Logged out" })
       setTimeout(() => {
         window.location.href = "/login"
-      }, 100)
-    } catch (e: any) {
-      toast({ title: "Logout failed", description: e.message, variant: "destructive" })
+      }, 200)
     }
   }
 
